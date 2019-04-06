@@ -1,0 +1,23 @@
+ALSA Policy Enforcement Daemon (alsaped)
+----------------------------------------
+
+The purpose of the daemon is to set ALSA controls according to the rules which
+are read from a config file.
+
+The logic of the program is simple:
+1. Read config file
+2. Set ALSA controls to default values
+3. Listen on D-Bus for events to react
+4. Modify ALSA controls according to the rules
+
+It's obvious that this daemon is not very useful when running standalone. To
+make it useful you may want to add configuration file and use a program that
+will provide alsaped with events to react on. In Maemo Fremantle such program
+was OHM (Open Hardware Manager).
+
+TODO:
+ - Add explanations to the head sections of source files
+ - Remove "bugfix" comments, "Bug?"
+ - Remove comments like "TODO:" from sources
+ - Remove comments like "FIXME:" from sources
+ - Add sections to README: how to configure, how to run, how to test

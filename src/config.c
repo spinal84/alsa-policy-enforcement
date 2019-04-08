@@ -186,7 +186,7 @@ int config_parse()
   int lineno, ret;
   enum section_type newsect;
   struct elemdef *elemdef;
-  struct ruldef  *ruldef;
+  struct ruldef  *rule;
   int status = 0;
 
   if (!(f = fopen(priv.path, "r")))
@@ -234,32 +234,32 @@ int config_parse()
       case section_sink:
       case section_source:
       case section_context:
-        ruldef = section.def.rule;
+        rule = section.def.rule;
 
-        if ((ret = ruldef_parse_outband(lineno, line, ruldef)) < 0)
+        if ((ret = ruldef_parse_outband(lineno, line, rule)) < 0)
           goto invalid;
 
         if (ret == 0)
         {
-          if (create_rule_outband(section.type, ruldef, lineno) < 0)
+          if (create_rule_outband(section.type, rule, lineno) < 0)
             goto invalid;
 
           break;
         }
 
-        if ((ret = ruldef_parse_suspend(lineno, line, ruldef)) < 0)
+        if ((ret = ruldef_parse_suspend(lineno, line, rule)) < 0)
           goto invalid;
 
         if (ret == 0)
         {
-          if (create_rule_suspend(section.type, ruldef, lineno) < 0)
+          if (create_rule_suspend(section.type, rule, lineno) < 0)
             goto invalid;
 
           break;
         }
 
-        if ((ret = ruldef_parse_alsa_setting(lineno, line, ruldef)) == 0 &&
-            create_rule_alsa_setting(section.type, ruldef, lineno) >= 0)
+        if ((ret = ruldef_parse_alsa_setting(lineno, line, rule)) == 0 &&
+            create_rule_alsa_setting(section.type, rule, lineno) >= 0)
         {
             break;
         }
@@ -495,14 +495,14 @@ create_elem(struct elemdef *elemdef)
  * Add parsed set value rule to daemon
  *
  * @param section  section type
- * @param ruldef   rule definition parsed from config file
+ * @param rule     rule definition parsed from config file
  * @param lineno   config file reference
  *
  * @return         0 if success, -1 if error
  */
 static int
 create_rule_alsa_setting(enum section_type section,
-                         struct ruldef *ruldef,
+                         struct ruldef *rule,
                          int lineno)
 {
   enum rule_type rule_type;
@@ -537,16 +537,16 @@ create_rule_alsa_setting(enum section_type section,
     log_info(
         "Create rule: type=%s entry='%s' action=alsa_setting, elemid='%s' value='%s'",
         rule_type_str,
-        ruldef->entry  ? ruldef->entry  : "<null>",
-        ruldef->elemid ? ruldef->elemid : "<null>",
-        ruldef->value  ? ruldef->value  : "<null>");
+        rule->entry  ? rule->entry  : "<null>",
+        rule->elemid ? rule->elemid : "<null>",
+        rule->value  ? rule->value  : "<null>");
   }
 
   if (rule_type == rule_unknown ||
-      !(entry_def = entrytbl_get_entry(priv.entrytbl, ruldef->entry)) ||
-      !(elem_def = elemtbl_find_by_id(priv.elemtbl, ruldef->elemid, &card_def)) ||
+      !(entry_def = entrytbl_get_entry(priv.entrytbl, rule->entry)) ||
+      !(elem_def = elemtbl_find_by_id(priv.elemtbl, rule->elemid, &card_def)) ||
       !control_define_rule_alsa_setting(rule_type, entry_def, card_def,
-                                        elem_def, ruldef->value, lineno))
+                                        elem_def, rule->value, lineno))
   {
     return -1;
   }
@@ -558,14 +558,14 @@ create_rule_alsa_setting(enum section_type section,
  * Add outband execution rule to daemon
  *
  * @param section  section type
- * @param ruldef   rule definition parsed from config
+ * @param rule     rule definition parsed from config
  * @param lineno   config file reference
  *
  * @return         -1 if error, 0 if success
  */
 static int
 create_rule_outband(enum section_type section,
-                    struct ruldef *ruldef,
+                    struct ruldef *rule,
                     int lineno)
 {
   enum rule_type rule_type;
@@ -593,18 +593,18 @@ create_rule_outband(enum section_type section,
       break;
   }
 
-  if (ruldef->action == action_outband_execution ||
-      ruldef->action == action_outband_cancellation)
+  if (rule->action == action_outband_execution ||
+      rule->action == action_outband_cancellation)
   {
     if (priv.log_parsed_rules)
     {
-      char *entry = ruldef->entry ? ruldef->entry : "<null>";
+      char *entry = rule->entry ? rule->entry : "<null>";
 
-      if (ruldef->action == action_outband_execution)
+      if (rule->action == action_outband_execution)
       {
         log_info(
           "Create rule: type=%s entry='%s' action=outband_execution delay=%dmsec",
-          rule_type_str, entry, ruldef->delay);
+          rule_type_str, entry, rule->delay);
       }
       else
       {
@@ -620,8 +620,8 @@ create_rule_outband(enum section_type section,
     rule_type = rule_unknown;
 
   if (rule_type == rule_unknown ||
-      !(entry_def = entrytbl_get_entry(priv.entrytbl, ruldef->entry)) ||
-      !control_define_rule_outband(rule_type, entry_def, ruldef->delay, lineno))
+      !(entry_def = entrytbl_get_entry(priv.entrytbl, rule->entry)) ||
+      !control_define_rule_outband(rule_type, entry_def, rule->delay, lineno))
   {
     return -1;
   }
@@ -633,14 +633,14 @@ create_rule_outband(enum section_type section,
  * Add suspend execution rule to daemon
  *
  * @param section  section type
- * @param ruldef   rule definition parsed from config
+ * @param rule     rule definition parsed from config
  * @param lineno   config file reference
  *
  * @return         -1 if error, 0 if success
  */
 static int
 create_rule_suspend(enum section_type section,
-                    struct ruldef *ruldef,
+                    struct ruldef *rule,
                     int lineno)
 {
   struct entry_def *entry_def;
@@ -673,13 +673,13 @@ create_rule_suspend(enum section_type section,
     log_info(
       "Create rule: type=%s entry='%s' action=suspend_execution sleep=%dmsec",
       rule_type_str,
-      ruldef->entry ? ruldef->entry : "<null>",
-      ruldef->delay);
+      rule->entry ? rule->entry : "<null>",
+      rule->delay);
   }
 
   if (rule_type == rule_unknown ||
-      !(entry_def = entrytbl_get_entry(priv.entrytbl, ruldef->entry)) ||
-      !control_define_rule_suspend(rule_type, entry_def, ruldef->delay, lineno))
+      !(entry_def = entrytbl_get_entry(priv.entrytbl, rule->entry)) ||
+      !control_define_rule_suspend(rule_type, entry_def, rule->delay, lineno))
   {
     return -1;
   }
@@ -689,12 +689,12 @@ create_rule_suspend(enum section_type section,
 
 /**
  * Add default settings parsed from config file to daemon
- * @param ruldef  rule definition parsed from config file
+ * @param rule    rule definition parsed from config file
  * @param lineno  config file reference
  * @return        -1 if error, 0 if success
  */
 static int
-create_deflt(struct ruldef *ruldef, int lineno)
+create_deflt(struct ruldef *rule, int lineno)
 {
   struct card_def *card_def;
   struct elem_def *elem_def;
@@ -702,16 +702,16 @@ create_deflt(struct ruldef *ruldef, int lineno)
   if (priv.log_parsed_rules)
   {
     log_info("Create deflt: elemid='%s' value='%s'",
-        ruldef->elemid ? ruldef->elemid : "<null>",
-        ruldef->value  ? ruldef->value  : "<null>");
+        rule->elemid ? rule->elemid : "<null>",
+        rule->value  ? rule->value  : "<null>");
   }
 
-  elem_def = elemtbl_find_by_id(priv.elemtbl, ruldef->elemid, &card_def);
+  elem_def = elemtbl_find_by_id(priv.elemtbl, rule->elemid, &card_def);
 
   if (!elem_def)
     return -1;
 
-  if (control_define_deflt(card_def, elem_def, ruldef->value, lineno))
+  if (control_define_deflt(card_def, elem_def, rule->value, lineno))
     return 0;
 
   return -1;
@@ -859,17 +859,17 @@ num_parse(int lineno, const char *line, unsigned int *num)
 static struct ruldef *
 ruldef_create()
 {
-  struct ruldef *ruldef;
+  struct ruldef *rule;
 
-  if (!(ruldef = malloc(sizeof(*ruldef))))
+  if (!(rule = malloc(sizeof(*rule))))
   {
     log_error("%s(): memory allocation error", "ruldef_create");
     exit(errno);
   }
 
-  memset(ruldef, 0, sizeof(*ruldef));
+  memset(rule, 0, sizeof(*rule));
 
-  return ruldef;
+  return rule;
 }
 
 /**
@@ -878,9 +878,9 @@ ruldef_create()
  * @return  NULL
  */
 static struct ruldef *
-ruldef_free(struct ruldef *ruldef)
+ruldef_free(struct ruldef *rule)
 {
-  free(ruldef);
+  free(rule);
   return NULL;
 }
 
@@ -889,12 +889,12 @@ ruldef_free(struct ruldef *ruldef)
  *
  * @param lineno  reference to config file
  * @param line    string to parse
- * @param ruldef  pointer to store the result
+ * @param rule    pointer to store the result
  *
  * @return        -1 if error, 0 if OK, 1 if skipped
  */
 static int
-ruldef_parse_alsa_setting(int lineno, char *line, struct ruldef *ruldef)
+ruldef_parse_alsa_setting(int lineno, char *line, struct ruldef *rule)
 {
   char *equal;
   char *colon;
@@ -904,7 +904,7 @@ ruldef_parse_alsa_setting(int lineno, char *line, struct ruldef *ruldef)
    * entry=line-pga-bypass-volume:0%
    */
 
-  if (!ruldef)
+  if (!rule)
     return -1;
 
   if (!(equal = strchr(line, '=')) ||
@@ -916,12 +916,12 @@ ruldef_parse_alsa_setting(int lineno, char *line, struct ruldef *ruldef)
   *equal = '\0';
   *colon = '\0';
 
-  ruldef->action = action_alsa_setting;
-  ruldef->entry  = line;
-  ruldef->elemid = equal + 1;
-  ruldef->value  = colon + 1;
+  rule->action = action_alsa_setting;
+  rule->entry  = line;
+  rule->elemid = equal + 1;
+  rule->value  = colon + 1;
 
-  return valid_entry(lineno, ruldef->entry) ? 0 : -1;
+  return valid_entry(lineno, rule->entry) ? 0 : -1;
 }
 
 /**
@@ -929,12 +929,12 @@ ruldef_parse_alsa_setting(int lineno, char *line, struct ruldef *ruldef)
  *
  * @param lineno  config file reference
  * @param line    string to parse
- * @param ruldef  pointer to store the result
+ * @param rule    pointer to store the result
  *
  * @return        -1 if error, 0 if parsed, 1 if skipped
  */
 static int
-ruldef_parse_outband(int lineno, char *line, struct ruldef *ruldef)
+ruldef_parse_outband(int lineno, char *line, struct ruldef *rule)
 {
   char *equal, *colon;
   int status;
@@ -945,7 +945,7 @@ ruldef_parse_outband(int lineno, char *line, struct ruldef *ruldef)
    * entry=@outband_cancellation@
    */
 
-  if (!ruldef)
+  if (!rule)
     return -1;
 
   if (!(equal = strchr(line, '=')))
@@ -961,11 +961,11 @@ ruldef_parse_outband(int lineno, char *line, struct ruldef *ruldef)
 
     status = valid_entry(lineno, line) ? 0 : -1;
 
-    if (num_parse(lineno, colon + 1, &ruldef->delay) < 0)
+    if (num_parse(lineno, colon + 1, &rule->delay) < 0)
       status = -1;
 
-    ruldef->action = action_outband_execution;
-    ruldef->entry = line;
+    rule->action = action_outband_execution;
+    rule->entry = line;
   }
   else if (!strcmp(equal + 1, "@outband_cancellation@"))
   {
@@ -973,9 +973,9 @@ ruldef_parse_outband(int lineno, char *line, struct ruldef *ruldef)
 
     status = valid_entry(lineno, line) ? 0 : -1;
 
-    ruldef->action = action_outband_cancellation;
-    ruldef->entry = line;
-    ruldef->delay = -1;
+    rule->action = action_outband_cancellation;
+    rule->entry = line;
+    rule->delay = -1;
   }
   else
     status = 1;
@@ -988,12 +988,12 @@ ruldef_parse_outband(int lineno, char *line, struct ruldef *ruldef)
  *
  * @param lineno  config file reference
  * @param line    string to parse
- * @param ruldef  pointer to store the result
+ * @param rule    pointer to store the result
  *
  * @return        -1 if error, 0 if parsed, 1 if skipped
  */
 static int
-ruldef_parse_suspend(int lineno, char *line, struct ruldef *ruldef)
+ruldef_parse_suspend(int lineno, char *line, struct ruldef *rule)
 {
   char *equal;
   char *colon;
@@ -1004,7 +1004,7 @@ ruldef_parse_suspend(int lineno, char *line, struct ruldef *ruldef)
    * entry=@suspend_execution@sleep:1000
    */
 
-  if (!ruldef)
+  if (!rule)
     return -1;
 
   if (!(equal = strchr(line, '=')) ||
@@ -1019,13 +1019,13 @@ ruldef_parse_suspend(int lineno, char *line, struct ruldef *ruldef)
   status = 0;
 
   if (!valid_entry(lineno, line) ||
-      num_parse(lineno, colon + 1, &ruldef->delay) < 0)
+      num_parse(lineno, colon + 1, &rule->delay) < 0)
   {
     status = -1;
   }
 
-  ruldef->action = action_suspend_execution;
-  ruldef->entry  = line;
+  rule->action = action_suspend_execution;
+  rule->entry  = line;
 
   return status;
 }
@@ -1035,12 +1035,12 @@ ruldef_parse_suspend(int lineno, char *line, struct ruldef *ruldef)
  *
  * @param lineno  config file reference
  * @param line    string to parse
- * @param ruldef  pointer to store the result
+ * @param rule    pointer to store the result
  *
  * @return        0 if success, -1 if error
  */
 static int
-ruldef_parse_deflt(int lineno, char *line, struct ruldef *ruldef)
+ruldef_parse_deflt(int lineno, char *line, struct ruldef *rule)
 {
   char *colon;
   int status;
@@ -1050,7 +1050,7 @@ ruldef_parse_deflt(int lineno, char *line, struct ruldef *ruldef)
    * l-l2-bypass-hpcom-switch:Off
    */
 
-  if (!ruldef)
+  if (!rule)
     return -1;
 
   if (!(colon = strchr(line, ':')))
@@ -1060,10 +1060,10 @@ ruldef_parse_deflt(int lineno, char *line, struct ruldef *ruldef)
   }
 
   *colon = '\0';
-  ruldef->action = action_alsa_setting;
-  ruldef->entry  = "<default>";
-  ruldef->elemid = line;
-  ruldef->value  = colon + 1;
+  rule->action = action_alsa_setting;
+  rule->entry  = "<default>";
+  rule->elemid = line;
+  rule->value  = colon + 1;
   return 0;
 }
 

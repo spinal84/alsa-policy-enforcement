@@ -15,6 +15,20 @@ make it useful you may want to add configuration file and use a program that
 will provide alsaped with events to react on. In Maemo Fremantle such program
 was OHM (Open Hardware Manager).
 
+--------------------------------------------------------------------------------
+Q: How can I check if alsaped is doing anything useful?
+A: The answer below fits to Maemo Fremantle.
+   Start playing music. Put on your headphones. Attach/detach the headphones to
+   Nokia N900 while the music is playing. Try to do it with and without alsaped
+   running. To start/stop the daemon in Maemo Fremantle use these commands:
+   # start alsaped
+   # stop alsaped
+   Two things you can notice while doing the above when alsaped is not running:
+   1. Absence of sound from speakers or headphones. This depends on what route
+      was active when you turned alsaped off.
+   2. Presense of quiet sound on headphones attach. This can be noticed if
+      alsaped was stopped while the sound was routed to headphones.
+
 TODO:
  - Add explanations to the head sections of source files
  - Remove "bugfix" comments, "Bug?"

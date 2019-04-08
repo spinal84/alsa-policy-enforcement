@@ -266,6 +266,7 @@ int config_parse()
 
 invalid:
         status = -1;
+        buf[strcspn(buf, "\n")] = 0;
         log_error("Invalid definition '%s' in line %d", buf, lineno);
         break;
       case section_default:

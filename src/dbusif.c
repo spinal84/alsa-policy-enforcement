@@ -316,7 +316,6 @@ registration_cb(DBusPendingCall *pend, void *data)
     return;
   }
 
-  /* Bugfix: rewrite error handling. Taken from pulseaudio-policy-enforcement */
   if (dbus_message_get_type(reply) == DBUS_MESSAGE_TYPE_ERROR)
   {
     if (name_owner_changed)
@@ -392,7 +391,6 @@ handle_admin_message(DBusMessage *msg)
   {
     log_info("policy decision point is up");
 
-    /* Bugfix: add check, return, changed if condition (after return) */
     if (!priv.regist)
       register_to_pdp((void *)1);
 

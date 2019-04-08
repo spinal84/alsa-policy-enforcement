@@ -516,8 +516,6 @@ control_event_cb(GIOChannel *source, GIOCondition condition, gpointer data)
     if (!ctl_elem)
       return TRUE;
 
-    /* Bugfix:
-     * ctl_elem_str[0] -> ctl_elem_value_str[0] */
     ctl_elem_value_str[0] = 0;
 
     if (alsaif_ctl_get_value(ctl_elem, &value) >= 0)

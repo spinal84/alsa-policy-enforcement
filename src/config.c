@@ -64,9 +64,6 @@ struct section {
 struct cardtbl_elem {
   char *id;
   char *name;
-  /* Bugfix, removed
-  int unknown;
-  */
   struct card_def *card;
 };
 
@@ -316,8 +313,6 @@ preprocess_buffer(int lineno, char *inbuf, char *outbuf)
     if (!quote && isblank(c))
       continue;
 
-    /* Bugfix:
-     * c == '#' -> (!quote && c == '#') */
     if (c == '\n' || (!quote && c == '#'))
       break;
 
@@ -340,8 +335,6 @@ preprocess_buffer(int lineno, char *inbuf, char *outbuf)
 
   *outbuf = 0;
 
-  /* Bugfix:
-   * check added from pulseaudio-policy-enforcement */
   if (quote)
     log_warning("unterminated quoted string '%s' in line %d", inbuf, lineno);
 
@@ -615,8 +608,6 @@ create_rule_outband(enum section_type section,
     }
   }
   else
-    /* Bugfix: this was inside
-     * if (priv.log_parsed_rules) {...} */
     rule_type = rule_unknown;
 
   if (rule_type == rule_unknown ||
@@ -756,7 +747,6 @@ elemdef_free(struct elemdef *elemdef)
     free(elemdef->id);
     free(elemdef->card);
     free(elemdef->iface);
-    /* Bugfix: memory leak, this was omitted: */
     free(elemdef->name);
     free(elemdef);
   }

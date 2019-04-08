@@ -31,8 +31,6 @@ struct card_def {
   struct card_def *next;
   char *id;
   char *name;
-  /* Bugfix, removed
-   * int unknown; */
   int num;
   struct elem_def *elem_list;
   struct rule_def *deflt;

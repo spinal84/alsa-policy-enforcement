@@ -518,7 +518,6 @@ get_value_from_percent(long long percent, int min, int max, int step)
   long long value_int;
   double value_float;
 
-  /* Bugfix? Previously it returned 0 if percent > 99 */
   if (percent > 99)
     return max;
 

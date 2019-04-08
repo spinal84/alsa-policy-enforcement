@@ -150,11 +150,7 @@ int main(int argc, char **argv)
 
   if (!options.list_and_exit)
   {
-    if (control_set_cb() < 0)  /* FIXME: always return 0 */
-    {
-      log_error("control creation failed");
-      return EIO;
-    }
+    control_set_cb();
 
     if (config_parse() < 0)
     {
@@ -163,12 +159,7 @@ int main(int argc, char **argv)
     }
   }
 
-  if (alsaif_create() < 0)  /* FIXME: always return 0 */
-  {
-    retval = errno;
-    log_error("ALSA interface creation failed");
-    return retval;
-  }
+  alsaif_create();
 
   if (options.list_and_exit)
     return 0;

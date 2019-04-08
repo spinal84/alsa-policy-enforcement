@@ -1,6 +1,7 @@
 sbin_PROGRAMS = alsaped
 
 dist_doc_DATA = README
+man_MANS = man/alsaped.8
 
 alsaped_CFLAGS = $(DEPS_CFLAGS)
 alsaped_LDADD  = $(DEPS_LIBS)

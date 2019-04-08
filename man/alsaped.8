@@ -1,0 +1,52 @@
+.TH ALSA-POLICY-ENFORCEMENT 8 "April  8 2019"
+.SH NAME
+alsaped \- ALSA routing daemon for policy enforcement
+.SH SYNOPSIS
+.B alsaped
+.OP \-hdilvrbe
+.OP \-u user
+.OP \-p priority
+.OP \-f config_file
+.OP \-m error,info,warning
+.SH DESCRIPTION
+\fBalsaped\fR \- ALSA Policy Enforcement Daemon.
+Its purpose is to set ALSA controls according to the rules provided.
+The daemon listens to D-Bus for context changes and reacts accordingly.
+.PP
+.SH OPTIONS
+.TP
+.B \-h
+Show summary of options.
+.TP
+.B \-d
+Run as a daemon.
+.TP
+.B \-i
+Accept commands from stdin.
+.TP
+.B \-u \fIuser\fR
+If daemonized run as user.
+.TP
+.B \-p \fIpriority\fR
+Run on run-time priority.
+.TP
+.B \-f \fIconfig_file\fR
+Config file path. If not specified the default config file is \fI/etc/alsaped.conf\fR
+.TP
+.B \-m \fIerror,info,warning\fR
+What to log. The \fB-vrbe\fR options turn on all levels.
+.TP
+.B \-l
+Print the list of the detected ALSA controls and exit.
+.TP
+.B \-v
+Log the value changes of the ALSA controls.
+.TP
+.B \-r
+Log the parsed rules.
+.TP
+.B \-b
+Log D-Bus message related information.
+.TP
+.B \-e
+Log rule execution related information.

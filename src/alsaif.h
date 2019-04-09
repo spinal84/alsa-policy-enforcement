@@ -23,7 +23,7 @@ struct alsaif_event_card {
   int   num;
 };
 
-struct alsaif_event_ctl {
+struct alsaif_event_elem {
   char *ifname;
   char *name;
   int   index;
@@ -34,7 +34,7 @@ struct alsaif_event_ctl {
 };
 
 union alsaif_event_data {
-  struct alsaif_event_ctl  ctl_elem;
+  struct alsaif_event_elem ctl_elem;
   struct alsaif_event_card card;
 };
 

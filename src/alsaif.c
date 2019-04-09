@@ -368,9 +368,9 @@ alsaif_card_new(int card_num)
     memset(&event, 0, sizeof(event));
 
     event.type = EVENT_CARD;
-    event.data.card.id   = card->id;
-    event.data.card.name = card->name;
-    event.data.card.num  = card->num;
+    event.card.id   = card->id;
+    event.card.name = card->name;
+    event.card.num  = card->num;
 
     priv.event_cb(&event);
   }
@@ -382,9 +382,9 @@ alsaif_card_new(int card_num)
     memset(&event, 0, sizeof(event));
 
     event.type = EVENT_CTLS;
-    event.data.card.id   = card->id;
-    event.data.card.name = card->name;
-    event.data.card.num  = card->num;
+    event.card.id   = card->id;
+    event.card.name = card->name;
+    event.card.num  = card->num;
 
     priv.event_cb(&event);
   }
@@ -651,13 +651,13 @@ alsaif_card_add_hctl_elem(alsaif_card *card, snd_hctl_elem_t *hctl_elem)
     memset(&event, 0, sizeof(event));
 
     event.type = EVENT_ELEM;
-    event.data.elem.ifname   = ctl_elem->ifname;
-    event.data.elem.name     = ctl_elem->name;
-    event.data.elem.index    = ctl_elem->index;
-    event.data.elem.dev      = ctl_elem->dev;
-    event.data.elem.subdev   = ctl_elem->subdev;
-    event.data.elem.card_num = card->num;
-    event.data.elem.numid    = ctl_elem->numid;
+    event.elem.ifname   = ctl_elem->ifname;
+    event.elem.name     = ctl_elem->name;
+    event.elem.index    = ctl_elem->index;
+    event.elem.dev      = ctl_elem->dev;
+    event.elem.subdev   = ctl_elem->subdev;
+    event.elem.card_num = card->num;
+    event.elem.numid    = ctl_elem->numid;
 
     priv.event_cb(&event);  /* alsa_event_cb() */
   }

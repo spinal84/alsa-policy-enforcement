@@ -33,14 +33,12 @@ struct alsaif_event_elem {
   int   numid;
 };
 
-union alsaif_event_data {
-  struct alsaif_event_elem elem;
-  struct alsaif_event_card card;
-};
-
 struct _alsaif_event {
   enum alsaif_event_type  type;
-  union alsaif_event_data data;
+  union {
+    struct alsaif_event_card card;
+    struct alsaif_event_elem elem;
+  };
 };
 
 struct value_descriptor_int {

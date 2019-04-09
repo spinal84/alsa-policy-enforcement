@@ -872,8 +872,7 @@ alsa_event_cb(alsaif_event *event)
           snd_ctl_elem_type_t content_type;
           value_descriptor   *descriptor;
 
-          /* FIXME: a program error? Are ctl_elem.dev and ctl_elem.card_num same? */
-          content_type = alsaif_get_value_descriptor(event->elem.dev,
+          content_type = alsaif_get_value_descriptor(event->elem.card_num,
                                                      event->elem.numid,
                                                      &descriptor);
           if (content_type)
@@ -884,7 +883,7 @@ alsa_event_cb(alsaif_event *event)
           else
           {
             log_error("Can't get value descriptor for hw:%d,%d",
-                      event->elem.dev,  /* FIXME: same, dev instead of card_num? */
+                      event->elem.card_num,
                       event->elem.numid);
           }
           return;

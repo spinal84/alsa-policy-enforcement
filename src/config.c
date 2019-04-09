@@ -1,3 +1,12 @@
+/**
+ * @file config.c
+ * @copyright GNU GPLv2 or later
+ *
+ * ALSA Policy Enforcement configuration facility.
+ * Read and process alsaped configuration files.
+ *
+ * @{ */
+
 #include <glib.h>
 #include <errno.h>
 #include <string.h>
@@ -1439,3 +1448,5 @@ fail:
 
   return NULL;
 }
+
+/** @} */

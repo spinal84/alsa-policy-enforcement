@@ -267,9 +267,9 @@ alsaif_card_new(int card_num)
 #define PFDS_PER_CARD 4
   alsaif_card *card = NULL;
   snd_hctl_t *hctl = NULL;
-  snd_ctl_t *snd_ctl_handle;
+  snd_ctl_t *ctl;
   snd_ctl_card_info_t *snd_card_info;
-  char snd_ctl_handle_name[16];
+  char ctl_name[16];
   const char *id;
   const char *name;
   int pfds_count;
@@ -284,9 +284,9 @@ alsaif_card_new(int card_num)
   if (card_num < 0)
     return NULL;
 
-  snprintf(snd_ctl_handle_name, sizeof(snd_ctl_handle_name), "hw:%d", card_num);
+  snprintf(ctl_name, sizeof(ctl_name), "hw:%d", card_num);
 
-  ret = snd_hctl_open(&hctl, snd_ctl_handle_name, 0);
+  ret = snd_hctl_open(&hctl, ctl_name, 0);
 
   if (ret < 0)
   {
@@ -300,26 +300,26 @@ alsaif_card_new(int card_num)
   if (ret < 0)
   {
     log_error("Control '%s' local error: %s",
-               snd_ctl_handle_name, snd_strerror(ret));
+               ctl_name, snd_strerror(ret));
     goto fail;
   }
 
-  snd_ctl_handle = snd_hctl_ctl(hctl);
+  ctl = snd_hctl_ctl(hctl);
 
-  if (!snd_ctl_handle)
+  if (!ctl)
   {
-    log_error("Can't obtain ctl handle for '%s'", snd_ctl_handle_name);
+    log_error("Can't obtain ctl handle for '%s'", ctl_name);
     goto fail;
   }
 
   snd_ctl_card_info_alloca(&snd_card_info);
 
-  ret = snd_ctl_card_info(snd_ctl_handle, snd_card_info);
+  ret = snd_ctl_card_info(ctl, snd_card_info);
 
   if (ret < 0)
   {
     log_error("Can't obtain card info for '%s': %s",
-               snd_ctl_handle_name, snd_strerror(ret));
+               ctl_name, snd_strerror(ret));
     goto fail;
   }
 
@@ -332,7 +332,7 @@ alsaif_card_new(int card_num)
   if (!card)
   {
     log_error("failed to allocate memory for control '%s': %s",
-               snd_ctl_handle_name, strerror(errno));
+               ctl_name, strerror(errno));
     goto fail;
   }
 
@@ -365,7 +365,7 @@ alsaif_card_new(int card_num)
     }
   }
 
-  snd_ctl_subscribe_events(snd_ctl_handle, 1);
+  snd_ctl_subscribe_events(ctl, 1);
 
   if (priv.opts.log_ctl)
     log_info("Found %s", alsaif_card_to_str(card, card_str, sizeof(card_str)));

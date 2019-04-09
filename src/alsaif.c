@@ -268,7 +268,7 @@ alsaif_card_new(int card_num)
   alsaif_card *card = NULL;
   snd_hctl_t *hctl = NULL;
   snd_ctl_t *ctl;
-  snd_ctl_card_info_t *snd_card_info;
+  snd_ctl_card_info_t *info;
   char ctl_name[16];
   const char *id;
   const char *name;
@@ -312,9 +312,9 @@ alsaif_card_new(int card_num)
     goto fail;
   }
 
-  snd_ctl_card_info_alloca(&snd_card_info);
+  snd_ctl_card_info_alloca(&info);
 
-  ret = snd_ctl_card_info(ctl, snd_card_info);
+  ret = snd_ctl_card_info(ctl, info);
 
   if (ret < 0)
   {
@@ -323,8 +323,8 @@ alsaif_card_new(int card_num)
     goto fail;
   }
 
-  id = snd_ctl_card_info_get_id(snd_card_info);
-  name = snd_ctl_card_info_get_name(snd_card_info);
+  id = snd_ctl_card_info_get_id(info);
+  name = snd_ctl_card_info_get_name(info);
   pfds_count = snd_hctl_poll_descriptors(hctl, pfds, PFDS_PER_CARD);
 
   card = malloc(sizeof(*card));

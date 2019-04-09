@@ -17,7 +17,7 @@
 
 typedef struct _alsaif_iomon     alsaif_iomon;
 typedef struct _alsaif_card      alsaif_card;
-typedef struct _alsaif_ctl_elem  alsaif_ctl_elem;
+typedef struct _alsaif_elem      alsaif_elem;
 
 struct _alsaif_iomon {
   GIOChannel *iochan;
@@ -32,12 +32,12 @@ struct _alsaif_card {
   char               *name;
   alsaif_iomon        iomon[4];
   int                 iomon_count;
-  alsaif_ctl_elem    *ctls[32];
+  alsaif_elem        *ctls[32];
 };
 
-struct _alsaif_ctl_elem
+struct _alsaif_elem
 {
-  alsaif_ctl_elem    *next;
+  alsaif_elem        *next;
   alsaif_card        *alsaif_card;
   unsigned int        numid;
   void               *hctl_elem;
@@ -62,19 +62,19 @@ static struct {
 
 static int alsaif_add_sound_cards(void);
 static alsaif_card *alsaif_cards_find(int);
-static alsaif_ctl_elem *alsaif_card_find_ctl_elem(alsaif_card *, int);
-static int alsaif_ctl_get_value(alsaif_ctl_elem *, long *);
-static int alsaif_ctl_set_value(alsaif_ctl_elem *, long *);
+static alsaif_elem *alsaif_card_find_ctl_elem(alsaif_card *, int);
+static int alsaif_ctl_get_value(alsaif_elem *, long *);
+static int alsaif_ctl_set_value(alsaif_elem *, long *);
 static alsaif_card *alsaif_card_new(int);
 static const char *alsaif_card_to_str(alsaif_card *, char *, int);
 static gboolean control_event_cb(GIOChannel *, GIOCondition, gpointer);
 static void alsaif_card_add_to_array(alsaif_card *);
 static void alsaif_card_add_ctls(alsaif_card *);
-static void alsaif_card_add_ctl_elem(alsaif_card *, alsaif_ctl_elem *);
-static char *alsaif_ctl_elem_to_str(alsaif_ctl_elem *, char *, size_t);
+static void alsaif_card_add_ctl_elem(alsaif_card *, alsaif_elem *);
+static char *alsaif_ctl_elem_to_str(alsaif_elem *, char *, size_t);
 static snd_ctl_elem_type_t alsaif_type_cast(snd_ctl_elem_type_t);
 
-static alsaif_ctl_elem *
+static alsaif_elem *
 alsaif_card_add_hctl_elem(alsaif_card *, snd_hctl_elem_t *);
 
 static int
@@ -132,7 +132,7 @@ int
 alsaif_get_value(int card_num, int numid, long *value)
 {
   alsaif_card *card;
-  alsaif_ctl_elem *ctl_elem;
+  alsaif_elem *ctl_elem;
 
   if (!value)
     return -1;
@@ -167,7 +167,7 @@ int
 alsaif_set_value(int card_num, int numid, long *value)
 {
   alsaif_card *card;
-  alsaif_ctl_elem *ctl_elem;
+  alsaif_elem *ctl_elem;
 
   if (!value)
     return -1;
@@ -207,7 +207,7 @@ alsaif_get_value_descriptor(int card_num,
                             value_descriptor **descriptor)
 {
   alsaif_card *card;
-  alsaif_ctl_elem *ctl_elem;
+  alsaif_elem *ctl_elem;
 
   if (!descriptor)
     return SND_CTL_ELEM_TYPE_NONE;
@@ -421,7 +421,7 @@ alsaif_card_add_ctls(alsaif_card *card)
 {
   snd_ctl_elem_info_t *ctl_elem_info;
   snd_hctl_elem_t *hctl_elem;
-  alsaif_ctl_elem *ctl_elem;
+  alsaif_elem *ctl_elem;
   char ctl_elem_str[256];
   int ret;
 
@@ -475,7 +475,7 @@ control_event_cb(GIOChannel *source, GIOCondition condition, gpointer data)
   snd_ctl_event_t *snd_ctl_event;
   unsigned int numid;
   unsigned int event_mask;
-  alsaif_ctl_elem *ctl_elem;
+  alsaif_elem *ctl_elem;
   char ctl_elem_str[256];
   char ctl_elem_value_str[256];
   long value;
@@ -603,12 +603,12 @@ alsaif_card_to_str(alsaif_card *card, char *str, int size)
  * @param card       alsaif_card instance
  * @param hctl_elem  ALSA hctl element
  *
- * @return  Reference to created alsaif_ctl_elem instance or NULL on error
+ * @return  Reference to created alsaif_elem instance or NULL on error
  */
-static alsaif_ctl_elem *
+static alsaif_elem *
 alsaif_card_add_hctl_elem(alsaif_card *card, snd_hctl_elem_t *hctl_elem)
 {
-  alsaif_ctl_elem *ctl_elem = NULL;
+  alsaif_elem *ctl_elem = NULL;
   snd_ctl_elem_info_t *ctl_elem_info = NULL;
   snd_ctl_elem_id_t *ctl_elem_id = NULL;
   snd_ctl_elem_iface_t ctl_elem_iface;
@@ -677,13 +677,13 @@ alsaif_card_add_hctl_elem(alsaif_card *card, snd_hctl_elem_t *hctl_elem)
 /**
  * Get current value for ALSA control element
  *
- * @param ctl_elem  alsaif_ctl_elem instance
+ * @param ctl_elem  alsaif_elem instance
  * @param value     Pointer to returned value
  *
  * @return  -1 on error, 0 on success
  */
 static int
-alsaif_ctl_get_value(alsaif_ctl_elem *ctl_elem, long *value)
+alsaif_ctl_get_value(alsaif_elem *ctl_elem, long *value)
 {
   snd_ctl_elem_value_t *ctl_elem_value;
   int ret;
@@ -721,13 +721,13 @@ alsaif_ctl_get_value(alsaif_ctl_elem *ctl_elem, long *value)
  * Set ALSA control element value. If there's more than one value for control
  * element, all values are set to the same.
  *
- * @param ctl_elem  alsaif_ctl_elem instance
+ * @param ctl_elem  alsaif_elem instance
  * @param value     value pointer
  *
  * @return  -1 on error, 0 on success
  */
 static int
-alsaif_ctl_set_value(alsaif_ctl_elem *ctl_elem, long *value)
+alsaif_ctl_set_value(alsaif_elem *ctl_elem, long *value)
 {
   snd_ctl_elem_value_t *ctl_elem_value;
   unsigned int i;
@@ -771,7 +771,7 @@ alsaif_ctl_set_value(alsaif_ctl_elem *ctl_elem, long *value)
 /*
  * Put control element information to string. Needed for logging and debug.
  *
- * @param ctl_elem  alsaif_ctl_elem instance
+ * @param ctl_elem  alsaif_elem instance
  * @param str       pointer to buffer to store the string
  * @param size      size of the buffer
  *
@@ -779,7 +779,7 @@ alsaif_ctl_set_value(alsaif_ctl_elem *ctl_elem, long *value)
  *          not enough.
  */
 static char *
-alsaif_ctl_elem_to_str(alsaif_ctl_elem *ctl_elem, char *str, size_t size)
+alsaif_ctl_elem_to_str(alsaif_elem *ctl_elem, char *str, size_t size)
 {
   char *p_limit;
   char *p_end;
@@ -1036,17 +1036,17 @@ alsaif_cards_find(int num)
  * Add control element to alsaif card
  *
  * @param card      alsaif_card instance
- * @param ctl_elem  alsaif_ctl_elem instance
+ * @param ctl_elem  alsaif_elem instance
  */
 static void
-alsaif_card_add_ctl_elem(alsaif_card *card, alsaif_ctl_elem *ctl_elem)
+alsaif_card_add_ctl_elem(alsaif_card *card, alsaif_elem *ctl_elem)
 {
-  alsaif_ctl_elem *i;
+  alsaif_elem *i;
 
   if (!card || !ctl_elem)
     return;
 
-  i = (alsaif_ctl_elem *)&card->ctls[ctl_elem->numid & 0x1F];
+  i = (alsaif_elem *)&card->ctls[ctl_elem->numid & 0x1F];
 
   while(i->next)
     i = i->next;
@@ -1061,12 +1061,12 @@ alsaif_card_add_ctl_elem(alsaif_card *card, alsaif_ctl_elem *ctl_elem)
  * @param card   alsaif_card instance
  * @param numid  control element numeric identifier
  *
- * @return       alsaif_ctl_elem instance or NULL if not found
+ * @return       alsaif_elem instance or NULL if not found
  */
-static alsaif_ctl_elem *
+static alsaif_elem *
 alsaif_card_find_ctl_elem(alsaif_card *card, int numid)
 {
-  alsaif_ctl_elem *ctl_elem;
+  alsaif_elem *ctl_elem;
 
   if (!card)
     return NULL;

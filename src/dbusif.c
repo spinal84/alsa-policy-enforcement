@@ -1,3 +1,13 @@
+/**
+ * @file dbusif.c
+ * @copyright GNU GPLv2 or later
+ *
+ * ALSA Policy Enforcement D-Bus interface functions.
+ * Control alsaped with D-Bus messages. This is the main source of events
+ * for the daemon, which reacts according to rules read from config file.
+ *
+ * @{ */
+
 #include <glib.h>
 #include <stdio.h>
 #include <errno.h>
@@ -762,3 +772,5 @@ fail:
 
   return -1;
 }
+
+/** @} */

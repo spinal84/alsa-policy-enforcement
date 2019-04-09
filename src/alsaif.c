@@ -46,7 +46,7 @@ struct _alsaif_elem
   unsigned int        index;
   unsigned int        dev;
   unsigned int        subdev;
-  snd_ctl_elem_type_t content_type;
+  snd_ctl_elem_type_t val_type;
   unsigned int        val_count;
   value_descriptor    descriptor;
 };
@@ -224,7 +224,7 @@ alsaif_get_value_descriptor(int card_num,
 
   *descriptor = &elem->descriptor;
 
-  return elem->content_type;
+  return elem->val_type;
 
 fail:
   log_error("%s(): Can't find control element (card=%d,numid=%d)",
@@ -529,7 +529,7 @@ control_event_cb(GIOChannel *source, GIOCondition condition, gpointer data)
 
     if (alsaif_ctl_get_value(elem, &value) >= 0)
     {
-      switch (elem->content_type)
+      switch (elem->val_type)
       {
         case SND_CTL_ELEM_TYPE_INTEGER:
           snprintf(elem_value_str, sizeof(elem_value_str),
@@ -613,7 +613,7 @@ alsaif_card_add_hctl(alsaif_card *card, snd_hctl_elem_t *hctl)
   snd_ctl_elem_iface_t elem_iface;
   const char *elem_name;
   const char *elem_ifname;
-  snd_ctl_elem_type_t elem_content_type;
+  snd_ctl_elem_type_t elem_val_type;
   alsaif_event event;
 
   if (!card || !hctl)
@@ -633,7 +633,7 @@ alsaif_card_add_hctl(alsaif_card *card, snd_hctl_elem_t *hctl)
   elem_iface = snd_ctl_elem_id_get_interface(elem_id);
   elem_ifname = snd_ctl_elem_iface_name(elem_iface);
   elem_name = snd_ctl_elem_id_get_name(elem_id);
-  elem_content_type = snd_ctl_elem_info_get_type(info);
+  elem_val_type = snd_ctl_elem_info_get_type(info);
 
   memset(elem, 0, sizeof(*elem));
 
@@ -646,10 +646,10 @@ alsaif_card_add_hctl(alsaif_card *card, snd_hctl_elem_t *hctl)
   elem->index = snd_ctl_elem_id_get_index(elem_id);
   elem->dev = snd_ctl_elem_id_get_device(elem_id);
   elem->subdev = snd_ctl_elem_id_get_subdevice(elem_id);
-  elem->content_type = alsaif_type_cast(elem_content_type);
+  elem->val_type = alsaif_type_cast(elem_val_type);
   elem->val_count = snd_ctl_elem_info_get_count(info);
 
-  value_descriptor_fill(hctl, info, elem->content_type, &elem->descriptor);
+  value_descriptor_fill(hctl, info, elem->val_type, &elem->descriptor);
 
   alsaif_card_add_elem(card, elem);
 
@@ -695,7 +695,7 @@ alsaif_ctl_get_value(alsaif_elem *elem, long *value)
     return -1;
   }
 
-  switch (elem->content_type)
+  switch (elem->val_type)
   {
     case SND_CTL_ELEM_TYPE_INTEGER:
       *value = snd_ctl_elem_value_get_integer(elem_value, elem->index);
@@ -734,7 +734,7 @@ alsaif_ctl_set_value(alsaif_elem *elem, long *value)
 
   for (i = 0;  elem->val_count > i;  i++)
   {
-    switch (elem->content_type)
+    switch (elem->val_type)
     {
       case SND_CTL_ELEM_TYPE_INTEGER:
         snd_ctl_elem_value_set_integer(elem_value, elem->index + i, *value);
@@ -820,7 +820,7 @@ alsaif_elem_to_str(alsaif_elem *elem, char *str, size_t size)
       goto fail;
   }
 
-  value_descriptor_to_str(elem->content_type, &elem->descriptor,
+  value_descriptor_to_str(elem->val_type, &elem->descriptor,
                           descriptor_str, sizeof(descriptor_str));
 
   p_end += snprintf(p_end, p_limit - p_end, "\n   [%s]", descriptor_str);
@@ -856,17 +856,17 @@ alsaif_type_cast(snd_ctl_elem_type_t type)
 /**
  * Get value descriptor information and put to value_descriptor instance
  *
- * @param hctl          ALSA hctl element
- * @param info          control element info structure pointer
- * @param content_type  content type for the value we need descriptor for
- * @param descriptor    Pointer to returned value_descriptor
+ * @param hctl        ALSA hctl element
+ * @param info        Control element info structure pointer
+ * @param val_type    Type of the value we need descriptor for
+ * @param descriptor  Pointer to returned value_descriptor
  *
  * @return  0 if success, number of last error with minus sign otherwise
  */
 static int
 value_descriptor_fill(snd_hctl_elem_t *hctl,
                       snd_ctl_elem_info_t *info,
-                      snd_ctl_elem_type_t content_type,
+                      snd_ctl_elem_type_t val_type,
                       value_descriptor *descriptor)
 {
   const char *enum_item_name;
@@ -877,7 +877,7 @@ value_descriptor_fill(snd_hctl_elem_t *hctl,
 
   memset(descriptor, 0, sizeof(*descriptor));
 
-  if (content_type == SND_CTL_ELEM_TYPE_INTEGER)
+  if (val_type == SND_CTL_ELEM_TYPE_INTEGER)
   {
     descriptor->int_t.min = snd_ctl_elem_info_get_min(info);
     descriptor->int_t.max = snd_ctl_elem_info_get_max(info);
@@ -885,7 +885,7 @@ value_descriptor_fill(snd_hctl_elem_t *hctl,
     return 0;
   }
 
-  if (content_type == SND_CTL_ELEM_TYPE_ENUMERATED)
+  if (val_type == SND_CTL_ELEM_TYPE_ENUMERATED)
   {
     descriptor->enum_t.count = snd_ctl_elem_info_get_items(info);
     descriptor->enum_t.names = calloc(descriptor->enum_t.count, sizeof(char *));

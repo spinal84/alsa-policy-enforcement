@@ -1,3 +1,12 @@
+/**
+ * @file alsaped.c
+ * @copyright GNU GPLv2 or later
+ *
+ * ALSA Policy Enforcement Daemon.
+ * This file contains main function and related.
+ *
+ * @{ */
+
 #include <unistd.h>
 #include <libgen.h>
 #include <stdio.h>
@@ -429,3 +438,5 @@ set_rt_prio(int prio)
   if (sched_setscheduler(0, SCHED_RR, &sched_param) < 0)
     log_info("Failed to set realtime priority %d. Reason: %s", prio, strerror(errno));
 }
+
+/** @} */

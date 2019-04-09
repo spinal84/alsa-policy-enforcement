@@ -1,3 +1,13 @@
+/**
+ * @file control.c
+ * @copyright GNU GPLv2 or later
+ *
+ * ALSA Policy Enforcement control module.
+ * These functions serve to handle alsaped rules.
+ * The rules are read from config files (see config.c).
+ *
+ * @{ */
+
 #include <unistd.h>
 #include <math.h>
 #include <glib.h>
@@ -979,3 +989,5 @@ alsaped_outband_cb(gpointer data)
 
   return G_SOURCE_REMOVE;
 }
+
+/** @} */

@@ -34,7 +34,7 @@ struct alsaif_event_elem {
 };
 
 union alsaif_event_data {
-  struct alsaif_event_elem ctl_elem;
+  struct alsaif_event_elem elem;
   struct alsaif_event_card card;
 };
 

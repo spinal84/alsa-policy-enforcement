@@ -841,18 +841,18 @@ alsa_event_cb(alsaif_event *event)
        *    value descriptor
        */
 
-      card_def = card_def_find_by_num(event->data.ctl_elem.card_num);
+      card_def = card_def_find_by_num(event->data.elem.card_num);
       if (!card_def)
         return;
 
-      elem_def = card_def_find_ctl_elem(card_def, event->data.ctl_elem.numid);
+      elem_def = card_def_find_ctl_elem(card_def, event->data.elem.numid);
       if (elem_def)
       {
-        if (strcmp(event->data.ctl_elem.ifname, elem_def->ifname) ||
-            strcmp(event->data.ctl_elem.name, elem_def->name) ||
-            event->data.ctl_elem.index != elem_def->index ||
-            event->data.ctl_elem.dev != elem_def->dev ||
-            event->data.ctl_elem.subdev != elem_def->subdev)
+        if (strcmp(event->data.elem.ifname, elem_def->ifname) ||
+            strcmp(event->data.elem.name, elem_def->name) ||
+            event->data.elem.index != elem_def->index ||
+            event->data.elem.dev != elem_def->dev ||
+            event->data.elem.subdev != elem_def->subdev)
         {
           log_error("%s(): confused by adding multiple elems", "alsa_event_cb");
         }
@@ -862,30 +862,30 @@ alsa_event_cb(alsaif_event *event)
       for (elem_def = card_def->elem_list;  elem_def;  elem_def = elem_def->next)
       {
         if ((!strcmp(elem_def->ifname, "*") ||
-             !strcmp(elem_def->ifname, event->data.ctl_elem.ifname)) &&
+             !strcmp(elem_def->ifname, event->data.elem.ifname)) &&
             (!strcmp(elem_def->name, "*") ||
-             !strcmp(elem_def->name, event->data.ctl_elem.name)) &&
-            (elem_def->index == -1 || elem_def->index == event->data.ctl_elem.index) &&
-            (elem_def->dev == -1 || elem_def->dev == event->data.ctl_elem.dev) &&
-            (elem_def->subdev == -1 || elem_def->subdev == event->data.ctl_elem.subdev))
+             !strcmp(elem_def->name, event->data.elem.name)) &&
+            (elem_def->index == -1 || elem_def->index == event->data.elem.index) &&
+            (elem_def->dev == -1 || elem_def->dev == event->data.elem.dev) &&
+            (elem_def->subdev == -1 || elem_def->subdev == event->data.elem.subdev))
         {
           snd_ctl_elem_type_t content_type;
           value_descriptor   *descriptor;
 
           /* FIXME: a program error? Are ctl_elem.dev and ctl_elem.card_num same? */
-          content_type = alsaif_get_value_descriptor(event->data.ctl_elem.dev,
-                                                     event->data.ctl_elem.numid,
+          content_type = alsaif_get_value_descriptor(event->data.elem.dev,
+                                                     event->data.elem.numid,
                                                      &descriptor);
           if (content_type)
           {
-            elem_def->numid = event->data.ctl_elem.numid;
+            elem_def->numid = event->data.elem.numid;
             alsaped_update_elem_values(elem_def, content_type, descriptor);
           }
           else
           {
             log_error("Can't get value descriptor for hw:%d,%d",
-                      event->data.ctl_elem.dev,  /* FIXME: same, dev instead of card_num? */
-                      event->data.ctl_elem.numid);
+                      event->data.elem.dev,  /* FIXME: same, dev instead of card_num? */
+                      event->data.elem.numid);
           }
           return;
         }

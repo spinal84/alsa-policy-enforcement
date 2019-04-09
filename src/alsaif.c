@@ -651,13 +651,13 @@ alsaif_card_add_hctl_elem(alsaif_card *card, snd_hctl_elem_t *hctl_elem)
     memset(&event, 0, sizeof(event));
 
     event.type = EVENT_ELEM;
-    event.data.ctl_elem.ifname   = ctl_elem->ifname;
-    event.data.ctl_elem.name     = ctl_elem->name;
-    event.data.ctl_elem.index    = ctl_elem->index;
-    event.data.ctl_elem.dev      = ctl_elem->dev;
-    event.data.ctl_elem.subdev   = ctl_elem->subdev;
-    event.data.ctl_elem.card_num = card->num;
-    event.data.ctl_elem.numid    = ctl_elem->numid;
+    event.data.elem.ifname   = ctl_elem->ifname;
+    event.data.elem.name     = ctl_elem->name;
+    event.data.elem.index    = ctl_elem->index;
+    event.data.elem.dev      = ctl_elem->dev;
+    event.data.elem.subdev   = ctl_elem->subdev;
+    event.data.elem.card_num = card->num;
+    event.data.elem.numid    = ctl_elem->numid;
 
     priv.event_cb(&event);  /* alsa_event_cb() */
   }

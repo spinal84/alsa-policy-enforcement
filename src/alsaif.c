@@ -646,7 +646,7 @@ alsaif_card_add_hctl_elem(alsaif_card *card, snd_hctl_elem_t *hctl_elem)
 
   alsaif_card_add_ctl_elem(card, ctl_elem);
 
-  if (priv.event_cb)  /* -> alsa_event_cb() */
+  if (priv.event_cb)
   {
     memset(&event, 0, sizeof(event));
 
@@ -659,7 +659,7 @@ alsaif_card_add_hctl_elem(alsaif_card *card, snd_hctl_elem_t *hctl_elem)
     event.data.ctl_elem.card_num = card->num;
     event.data.ctl_elem.numid    = ctl_elem->numid;
 
-    priv.event_cb(&event);
+    priv.event_cb(&event);  /* alsa_event_cb() */
   }
 
   return ctl_elem;

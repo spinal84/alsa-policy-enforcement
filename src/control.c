@@ -214,12 +214,8 @@ control_define_rule_alsa_setting(enum rule_type rule_type,
 {
   struct rule_def *rule;
 
-  if (!entry_def ||
-      !card_def  ||
-      !elem_def  ||
-      !value     ||
-      rule_type == rule_unknown ||
-      rule_type >= rule_max)
+  if (!entry_def || !card_def || !elem_def || !value ||
+      rule_type == rule_unknown || rule_type >= rule_max)
   {
     errno = EINVAL;
     return NULL;
@@ -789,6 +785,8 @@ alsa_event_cb(alsaif_event *event)
   {
     case EVENT_CARD:
       /*
+       * Sound card added.
+       *
        * Initialize card_def->num
        */
 
@@ -817,7 +815,7 @@ alsa_event_cb(alsaif_event *event)
 
     case EVENT_CTLS:
       /*
-       * All controls were added
+       * All control elements were added.
        *
        * Set default values from card_def->deflt
        */
@@ -835,6 +833,8 @@ alsa_event_cb(alsaif_event *event)
 
     case EVENT_ELEM:
       /*
+       * Single control element added.
+       *
        * 1. Initialize elem_def->numid
        *
        * 2. Initialize rule->value from rule->s_value according to read
@@ -873,10 +873,9 @@ alsa_event_cb(alsaif_event *event)
           value_descriptor   *descriptor;
 
           /* FIXME: a program error? Are ctl_elem.dev and ctl_elem.card_num same? */
-          content_type = alsaif_get_value_descriptor(
-                           event->data.ctl_elem.dev,
-                           event->data.ctl_elem.numid,
-                           &descriptor);
+          content_type = alsaif_get_value_descriptor(event->data.ctl_elem.dev,
+                                                     event->data.ctl_elem.numid,
+                                                     &descriptor);
           if (content_type)
           {
             elem_def->numid = event->data.ctl_elem.numid;
@@ -884,10 +883,9 @@ alsa_event_cb(alsaif_event *event)
           }
           else
           {
-            log_error(
-              "Can't get value descriptor for hw:%d,%d",
-              event->data.ctl_elem.dev,  /* FIXME: same, dev instead of card_num? */
-              event->data.ctl_elem.numid);
+            log_error("Can't get value descriptor for hw:%d,%d",
+                      event->data.ctl_elem.dev,  /* FIXME: same, dev instead of card_num? */
+                      event->data.ctl_elem.numid);
           }
           return;
         }

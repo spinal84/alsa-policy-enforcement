@@ -885,8 +885,6 @@ value_descriptor_fill(snd_hctl_elem_t *hctl_elem,
 
   if (content_type == SND_CTL_ELEM_TYPE_ENUMERATED)
   {
-    /* TODO: it was calloc(descriptor->enum_t.count + 1, sizeof(char *))
-     *       initially. Check there's no problem with removed "+ 1" part */
     descriptor->enum_t.count = snd_ctl_elem_info_get_items(ctl_elem_info);
     descriptor->enum_t.names = calloc(descriptor->enum_t.count, sizeof(char *));
 

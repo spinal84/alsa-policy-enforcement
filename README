@@ -31,6 +31,5 @@ A: The answer below fits to Maemo Fremantle.
 
 TODO:
  - Add explanations to the head sections of source files
- - Remove comments like "TODO:" from sources
  - Remove comments like "FIXME:" from sources
  - Add sections to README: how to configure, how to run, how to test

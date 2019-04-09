@@ -588,7 +588,6 @@ alsaped_update_elem_values(struct elem_def     *alsaped_elem,
           }
           else
           {
-            // TODO: check what value is set in original alsaped if percent == 100%
             rule->value = value_int;
           }
         }
@@ -833,13 +832,6 @@ alsa_event_cb(alsaif_event *event)
           event->data.card.num);
 
       return;
-
-    // TODO: not needed, remove
-    /*
-    case EVENT_CTLS | EVENT_CARD:
-    case EVENT_ELEM | EVENT_CARD:
-      return;
-    */
 
     case EVENT_ELEM:
       /*

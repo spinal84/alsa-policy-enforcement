@@ -1,3 +1,9 @@
+/**
+ * @file alsaif.c Logging functions
+ * @copyright GNU GPLv2 or later
+ *
+ * @{ */
+
 #include <stdarg.h>
 #include <syslog.h>
 #include <stdio.h>
@@ -72,3 +78,5 @@ alsaped_log(log_level_t level, const char *format, ...)
 
   va_end(args);
 }
+
+/** @} */

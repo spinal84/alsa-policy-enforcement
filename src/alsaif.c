@@ -1,3 +1,12 @@
+/**
+ * @file alsaif.c
+ * @copyright GNU GPLv2 or later
+ *
+ * ALSA interface functions.
+ * These are needed to get/set/store sound card control elements values.
+ *
+ * @{ */
+
 #include <alsa/asoundlib.h>
 #include <glib.h>
 
@@ -1070,3 +1079,5 @@ alsaif_card_find_ctl_elem(alsaif_card *card, int numid)
 
   return NULL;
 }
+
+/** @} */

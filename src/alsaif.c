@@ -40,7 +40,7 @@ struct _alsaif_elem
   alsaif_elem        *next;
   alsaif_card        *alsaif_card;
   unsigned int        numid;
-  void               *hctl_elem;
+  void               *hctl;
   char               *ifname;
   char               *name;
   unsigned int        index;
@@ -75,7 +75,7 @@ static char *alsaif_ctl_elem_to_str(alsaif_elem *, char *, size_t);
 static snd_ctl_elem_type_t alsaif_type_cast(snd_ctl_elem_type_t);
 
 static alsaif_elem *
-alsaif_card_add_hctl_elem(alsaif_card *, snd_hctl_elem_t *);
+alsaif_card_add_hctl     (alsaif_card *, snd_hctl_elem_t *);
 
 static int
 value_descriptor_fill    (snd_hctl_elem_t *, snd_ctl_elem_info_t *,
@@ -420,18 +420,18 @@ static void
 alsaif_card_add_ctls(alsaif_card *card)
 {
   snd_ctl_elem_info_t *ctl_elem_info;
-  snd_hctl_elem_t *hctl_elem;
+  snd_hctl_elem_t *hctl;
   alsaif_elem *ctl_elem;
   char ctl_elem_str[256];
   int ret;
 
   snd_ctl_elem_info_alloca(&ctl_elem_info);
 
-  for (hctl_elem = snd_hctl_first_elem(card->hctl);  hctl_elem;
-       hctl_elem = snd_hctl_elem_next(hctl_elem))
+  for (hctl = snd_hctl_first_elem(card->hctl);  hctl;
+       hctl = snd_hctl_elem_next(hctl))
   {
     snd_ctl_elem_info_clear(ctl_elem_info);
-    ret = snd_hctl_elem_info(hctl_elem, ctl_elem_info);
+    ret = snd_hctl_elem_info(hctl, ctl_elem_info);
 
     if (ret < 0)
     {
@@ -443,7 +443,7 @@ alsaif_card_add_ctls(alsaif_card *card)
     if (snd_ctl_elem_info_is_inactive(ctl_elem_info))
       continue;
 
-    ctl_elem = alsaif_card_add_hctl_elem(card, hctl_elem);
+    ctl_elem = alsaif_card_add_hctl(card, hctl);
 
     if (ctl_elem && priv.opts.log_ctl)
     {
@@ -600,13 +600,13 @@ alsaif_card_to_str(alsaif_card *card, char *str, int size)
 /**
  * Add ALSA hctl element to alsaif_card controls
  *
- * @param card       alsaif_card instance
- * @param hctl_elem  ALSA hctl element
+ * @param card  alsaif_card instance
+ * @param hctl  ALSA hctl element
  *
  * @return  Reference to created alsaif_elem instance or NULL on error
  */
 static alsaif_elem *
-alsaif_card_add_hctl_elem(alsaif_card *card, snd_hctl_elem_t *hctl_elem)
+alsaif_card_add_hctl(alsaif_card *card, snd_hctl_elem_t *hctl)
 {
   alsaif_elem *ctl_elem = NULL;
   snd_ctl_elem_info_t *ctl_elem_info = NULL;
@@ -617,7 +617,7 @@ alsaif_card_add_hctl_elem(alsaif_card *card, snd_hctl_elem_t *hctl_elem)
   snd_ctl_elem_type_t ctl_elem_content_type;
   alsaif_event event;
 
-  if (!card || !hctl_elem)
+  if (!card || !hctl)
     return NULL;
 
   ctl_elem = malloc(sizeof(*ctl_elem));
@@ -626,10 +626,10 @@ alsaif_card_add_hctl_elem(alsaif_card *card, snd_hctl_elem_t *hctl_elem)
     return NULL;
 
   snd_ctl_elem_id_alloca(&ctl_elem_id);
-  snd_hctl_elem_get_id(hctl_elem, ctl_elem_id);
+  snd_hctl_elem_get_id(hctl, ctl_elem_id);
 
   snd_ctl_elem_info_alloca(&ctl_elem_info);
-  snd_hctl_elem_info(hctl_elem, ctl_elem_info);
+  snd_hctl_elem_info(hctl, ctl_elem_info);
 
   ctl_elem_iface = snd_ctl_elem_id_get_interface(ctl_elem_id);
   ctl_elem_ifname = snd_ctl_elem_iface_name(ctl_elem_iface);
@@ -641,7 +641,7 @@ alsaif_card_add_hctl_elem(alsaif_card *card, snd_hctl_elem_t *hctl_elem)
   ctl_elem->next = NULL;
   ctl_elem->alsaif_card = card;
   ctl_elem->numid = snd_ctl_elem_id_get_numid(ctl_elem_id);
-  ctl_elem->hctl_elem = hctl_elem;
+  ctl_elem->hctl = hctl;
   ctl_elem->ifname = strdup(ctl_elem_ifname);
   ctl_elem->name = strdup(ctl_elem_name);
   ctl_elem->index = snd_ctl_elem_id_get_index(ctl_elem_id);
@@ -650,7 +650,7 @@ alsaif_card_add_hctl_elem(alsaif_card *card, snd_hctl_elem_t *hctl_elem)
   ctl_elem->content_type = alsaif_type_cast(ctl_elem_content_type);
   ctl_elem->val_count = snd_ctl_elem_info_get_count(ctl_elem_info);
 
-  value_descriptor_fill(hctl_elem, ctl_elem_info,
+  value_descriptor_fill(hctl, ctl_elem_info,
       ctl_elem->content_type, &ctl_elem->descriptor);
 
   alsaif_card_add_ctl_elem(card, ctl_elem);
@@ -689,7 +689,7 @@ alsaif_ctl_get_value(alsaif_elem *ctl_elem, long *value)
   int ret;
 
   snd_ctl_elem_value_alloca(&ctl_elem_value);
-  ret = snd_hctl_elem_read(ctl_elem->hctl_elem, ctl_elem_value);
+  ret = snd_hctl_elem_read(ctl_elem->hctl, ctl_elem_value);
 
   if (ret < 0)
   {
@@ -755,7 +755,7 @@ alsaif_ctl_set_value(alsaif_elem *ctl_elem, long *value)
         return -1;
     }
 
-    ret = snd_hctl_elem_write(ctl_elem->hctl_elem, ctl_elem_value);
+    ret = snd_hctl_elem_write(ctl_elem->hctl, ctl_elem_value);
 
     if (ret < 0)
     {
@@ -863,7 +863,7 @@ alsaif_type_cast(snd_ctl_elem_type_t type)
 /**
  * Get value descriptor information and put to value_descriptor instance
  *
- * @param hctl_elem      ALSA hctl element
+ * @param hctl           ALSA hctl element
  * @param ctl_elem_info  control element info structure pointer
  * @param content_type   content type for the value we need descriptor for
  * @param descriptor     Pointer to returned value_descriptor
@@ -871,7 +871,7 @@ alsaif_type_cast(snd_ctl_elem_type_t type)
  * @return  0 if success, number of last error with minus sign otherwise
  */
 static int
-value_descriptor_fill(snd_hctl_elem_t *hctl_elem,
+value_descriptor_fill(snd_hctl_elem_t *hctl,
                       snd_ctl_elem_info_t *ctl_elem_info,
                       snd_ctl_elem_type_t content_type,
                       value_descriptor *descriptor)
@@ -879,7 +879,7 @@ value_descriptor_fill(snd_hctl_elem_t *hctl_elem,
   const char *enum_item_name;
   int ret, i;
 
-  if (!hctl_elem || !ctl_elem_info || !descriptor)
+  if (!hctl || !ctl_elem_info || !descriptor)
     return -EINVAL;  /* Invalid argument */
 
   memset(descriptor, 0, sizeof(*descriptor));
@@ -908,7 +908,7 @@ value_descriptor_fill(snd_hctl_elem_t *hctl_elem,
     for (i = 0;  i < descriptor->enum_t.count;  i++)
     {
       snd_ctl_elem_info_set_item(ctl_elem_info, i);
-      ret = snd_hctl_elem_info(hctl_elem, ctl_elem_info);
+      ret = snd_hctl_elem_info(hctl, ctl_elem_info);
 
       if (ret < 0)
       {

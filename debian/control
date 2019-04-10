@@ -1,0 +1,16 @@
+Source: alsa-policy-enforcement
+Section: sound
+Priority: optional
+Maintainer: Arthur Demchenkov <spinal.by@gmail.com>
+Build-Depends:
+ debhelper (>= 10),
+ pkg-config,
+ libdbus-glib-1-dev,
+ libasound2-dev,
+Standards-Version: 4.3.0
+Homepage: https://github.com/maemo-leste/alsa-policy-enforcement
+
+Package: alsa-policy-enforcement
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: ALSA routing daemon for policy enforcement

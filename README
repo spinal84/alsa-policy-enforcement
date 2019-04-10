@@ -28,7 +28,3 @@ A: The answer below fits to Maemo Fremantle.
       was active when you turned alsaped off.
    2. Presense of quiet sound on headphones attach. This can be noticed if
       alsaped was stopped while the sound was routed to headphones.
-
-TODO:
- - Add explanations to the head sections of source files
- - Add sections to README: how to configure, how to run, how to test

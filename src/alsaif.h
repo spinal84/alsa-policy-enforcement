@@ -9,12 +9,12 @@ typedef union  _value_descriptor  value_descriptor;
 typedef void   (*alsaif_event_cb) (alsaif_event*);
 
 enum alsaif_event_type {
-  /** Add sound card */
-  EVENT_CARD = 1 << 0,
-  /** Add all control elements */
-  EVENT_CTLS = 1 << 1,
-  /** Add single control element */
-  EVENT_ELEM = 1 << 2
+  /** Sound card was added to alsaif */
+  EVENT_SOUNDCARD_ADDED = 1 << 0,
+  /** All control elements were added to a sound card */
+  EVENT_CONTROLS_ADDED  = 1 << 1,
+  /** Single control element was added just added */
+  EVENT_CTL_ELEM_ADDED  = 1 << 2
 };
 
 struct alsaif_event_card {

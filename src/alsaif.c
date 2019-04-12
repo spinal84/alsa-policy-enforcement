@@ -376,7 +376,7 @@ alsaif_card_new(int card_num)
   {
     memset(&event, 0, sizeof(event));
 
-    event.type = EVENT_CARD;
+    event.type = EVENT_SOUNDCARD_ADDED;
     event.card.id   = card->id;
     event.card.name = card->name;
     event.card.num  = card->num;
@@ -390,7 +390,7 @@ alsaif_card_new(int card_num)
   {
     memset(&event, 0, sizeof(event));
 
-    event.type = EVENT_CTLS;
+    event.type = EVENT_CONTROLS_ADDED;
     event.card.id   = card->id;
     event.card.name = card->name;
     event.card.num  = card->num;
@@ -657,7 +657,7 @@ alsaif_card_add_hctl(alsaif_card *card, snd_hctl_elem_t *hctl)
   {
     memset(&event, 0, sizeof(event));
 
-    event.type = EVENT_ELEM;
+    event.type = EVENT_CTL_ELEM_ADDED;
     event.elem.ifname   = elem->ifname;
     event.elem.name     = elem->name;
     event.elem.index    = elem->index;

@@ -4,7 +4,7 @@
  *
  * ALSA Policy Enforcement control module.
  * These functions serve to handle alsaped rules.
- * The rules are read from config files (see config.c).
+ * The rules are read from a config file (see config.c).
  *
  * @{ */
 
@@ -843,7 +843,7 @@ alsa_event_cb(alsaif_event *event)
 
     case EVENT_CTL_ELEM_ADDED:
       /*
-       * Single control element added.
+       * Single control element was added.
        *
        * 1. Initialize elem_def->numid
        *

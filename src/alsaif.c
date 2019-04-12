@@ -25,6 +25,7 @@ struct _alsaif_iomon {
 };
 
 struct _alsaif_card {
+  /* 'next' must be the first field! */
   alsaif_card        *next;
   int                 num;
   void               *hctl;
@@ -37,6 +38,7 @@ struct _alsaif_card {
 
 struct _alsaif_elem
 {
+  /* 'next' must be the first field! */
   alsaif_elem        *next;
   alsaif_card        *alsaif_card;
   unsigned int        numid;
@@ -69,7 +71,7 @@ static alsaif_card *alsaif_card_new(int);
 static const char *alsaif_card_to_str(alsaif_card *, char *, int);
 static gboolean control_event_cb(GIOChannel *, GIOCondition, gpointer);
 static void alsaif_card_add_to_array(alsaif_card *);
-static void alsaif_card_add_ctls(alsaif_card *);
+static void alsaif_card_add_controls(alsaif_card *);
 static void alsaif_card_add_elem(alsaif_card *, alsaif_elem *);
 static char *alsaif_elem_to_str(alsaif_elem *, char *, size_t);
 static snd_ctl_elem_type_t alsaif_type_cast(snd_ctl_elem_type_t);
@@ -384,7 +386,7 @@ alsaif_card_new(int card_num)
     priv.event_cb(&event);
   }
 
-  alsaif_card_add_ctls(card);
+  alsaif_card_add_controls(card);
 
   if (priv.event_cb)  /* -> alsa_event_cb() */
   {
@@ -413,11 +415,11 @@ fail:
 }
 
 /**
- * Find and add control elements to alsaif card
- * @param card  the sound card we need controls for
+ * Find and add control elements to alsaif sound card interface.
+ * @param card  the sound card
  */
 static void
-alsaif_card_add_ctls(alsaif_card *card)
+alsaif_card_add_controls(alsaif_card *card)
 {
   snd_ctl_elem_info_t *info;
   snd_hctl_elem_t *hctl;
@@ -1041,7 +1043,7 @@ alsaif_card_add_elem(alsaif_card *card, alsaif_elem *elem)
 
   i = (alsaif_elem *)&card->ctls[elem->numid & 0x1F];
 
-  while(i->next)
+  while (i->next)
     i = i->next;
 
   i->next = elem;

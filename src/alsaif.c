@@ -15,6 +15,12 @@
 
 #include "alsaif.h"
 
+#define CARDS_COUNT 256
+#define CARDS_MASK  0xFF
+
+#define ELEMS_COUNT 32
+#define ELEMS_MASK  0x1F
+
 typedef struct _alsaif_iomon     alsaif_iomon;
 typedef struct _alsaif_card      alsaif_card;
 typedef struct _alsaif_elem      alsaif_elem;
@@ -33,7 +39,7 @@ struct _alsaif_card {
   char               *name;
   alsaif_iomon        iomon[4];
   int                 iomon_count;
-  alsaif_elem        *elements[32];
+  alsaif_elem        *elements[ELEMS_COUNT];
 };
 
 struct _alsaif_elem
@@ -57,7 +63,7 @@ struct _alsaif_elem
 /* Private structure */
 static struct {
   alsaif_event_cb  event_cb;
-  alsaif_card      *cards[256];
+  alsaif_card      *cards[CARDS_COUNT];
   struct alsaif_options opts;
 } priv;
 
@@ -996,7 +1002,7 @@ alsaif_card_add_to_array(alsaif_card *card)
     return;
 
   /* The hacky way to add the first instance to the list */
-  i = (alsaif_card *)&priv.cards[card->num & 0xFF];
+  i = (alsaif_card *)&priv.cards[card->num & CARDS_MASK];
 
   while(i->next)
     i = i->next;
@@ -1018,7 +1024,7 @@ alsaif_cards_find(int num)
   if (num < 0)
     return NULL;
 
-  for (card = priv.cards[num & 0xFF];  card;  card = card->next)
+  for (card = priv.cards[num & CARDS_MASK];  card;  card = card->next)
   {
     if (card->num == num)
       return card;
@@ -1041,7 +1047,7 @@ alsaif_card_add_elem(alsaif_card *card, alsaif_elem *elem)
   if (!card || !elem)
     return;
 
-  i = (alsaif_elem *)&card->elements[elem->numid & 0x1F];
+  i = (alsaif_elem *)&card->elements[elem->numid & ELEMS_MASK];
 
   while (i->next)
     i = i->next;
@@ -1066,7 +1072,7 @@ alsaif_card_find_elem(alsaif_card *card, int numid)
   if (!card)
     return NULL;
 
-  for (elem = card->elements[numid & 0x1F]; elem; elem = elem->next)
+  for (elem = card->elements[numid & ELEMS_MASK]; elem; elem = elem->next)
   {
     if (elem->numid == numid)
       return elem;

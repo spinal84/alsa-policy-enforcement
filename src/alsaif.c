@@ -431,7 +431,7 @@ alsaif_card_add_controls(alsaif_card *card)
   snd_hctl_elem_t *hctl;
   alsaif_elem *elem;
   char elem_str[256];
-  int ret;
+  int ret, i;
 
   snd_ctl_elem_info_alloca(&info);
 
@@ -452,12 +452,13 @@ alsaif_card_add_controls(alsaif_card *card)
       continue;
 
     elem = alsaif_card_add_hctl(card, hctl);
+  }
 
-    if (elem && priv.opts.log_ctl)
-    {
-      log_info("  %s", alsaif_elem_to_str(
-            elem, elem_str, sizeof(elem_str)));
-    }
+  if (priv.opts.log_ctl)
+  {
+    i = alsaif_card_find_elem(card, 0) ? 0 : 1;
+    for (;  (elem = alsaif_card_find_elem(card, i));  i++)
+      log_info("  %s", alsaif_elem_to_str(elem, elem_str, sizeof(elem_str)));
   }
 }
 

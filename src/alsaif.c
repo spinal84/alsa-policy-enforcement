@@ -33,7 +33,7 @@ struct _alsaif_card {
   char               *name;
   alsaif_iomon        iomon[4];
   int                 iomon_count;
-  alsaif_elem        *ctls[32];
+  alsaif_elem        *elements[32];
 };
 
 struct _alsaif_elem
@@ -1041,7 +1041,7 @@ alsaif_card_add_elem(alsaif_card *card, alsaif_elem *elem)
   if (!card || !elem)
     return;
 
-  i = (alsaif_elem *)&card->ctls[elem->numid & 0x1F];
+  i = (alsaif_elem *)&card->elements[elem->numid & 0x1F];
 
   while (i->next)
     i = i->next;
@@ -1066,7 +1066,7 @@ alsaif_card_find_elem(alsaif_card *card, int numid)
   if (!card)
     return NULL;
 
-  for (elem = card->ctls[numid & 0x1F]; elem; elem = elem->next)
+  for (elem = card->elements[numid & 0x1F]; elem; elem = elem->next)
   {
     if (elem->numid == numid)
       return elem;

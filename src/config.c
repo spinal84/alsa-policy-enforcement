@@ -730,7 +730,7 @@ elemdef_create()
 
   if (!(elemdef = malloc(sizeof(*elemdef))))
   {
-    log_error("%s(): memory allocation error", "elemdef_create");
+    log_error("%s(): memory allocation error", __func__);
     exit(errno);
   }
 
@@ -862,7 +862,7 @@ ruldef_create()
 
   if (!(rule = malloc(sizeof(*rule))))
   {
-    log_error("%s(): memory allocation error", "ruldef_create");
+    log_error("%s(): memory allocation error", __func__);
     exit(errno);
   }
 
@@ -1172,7 +1172,7 @@ cardtbl_get_card_def(struct cardtbl *tbl, char *id, char *name)
 
   if (!tbl->array || !(elem = malloc(sizeof(*elem))))
   {
-    log_error("%s(): memory (re)allocation failed", "cardtbl_get_card_def");
+    log_error("%s(): memory (re)allocation failed", __func__);
     exit(errno);
   }
 
@@ -1183,7 +1183,7 @@ cardtbl_get_card_def(struct cardtbl *tbl, char *id, char *name)
 
   if (!elem->id || !elem->name)
   {
-    log_error("%s(): memory allocation failed", "cardtbl_get_card_def");
+    log_error("%s(): memory allocation failed", __func__);
     goto fail;
   }
 
@@ -1285,7 +1285,7 @@ elemtbl_add_elem(struct elemtbl *tbl,
 
   if (!tbl->array || !(elem = malloc(sizeof(*elem))))
   {
-    log_error("%s(): memory (re)allocation failed", "elemtbl_add_elem");
+    log_error("%s(): memory (re)allocation failed", __func__);
     exit(errno);
   }
 
@@ -1296,7 +1296,7 @@ elemtbl_add_elem(struct elemtbl *tbl,
 
   if (!elem->id)
   {
-    log_error("%s(): memory allocation failed", "elemtbl_add_elem");
+    log_error("%s(): memory allocation failed", __func__);
     goto fail;
   }
 
@@ -1422,7 +1422,7 @@ entrytbl_get_entry(struct entrytbl *tbl, char *entry_name)
 
   if (!tbl->array || !(elem = malloc(sizeof(*elem))))
   {
-    log_error("%s(): memory (re)allocation failed", "entrytbl_get_entry");
+    log_error("%s(): memory (re)allocation failed", __func__);
     exit(errno);
   }
 
@@ -1432,7 +1432,7 @@ entrytbl_get_entry(struct entrytbl *tbl, char *entry_name)
 
   if (!elem->entry)
   {
-    log_error("%s(): memory allocation failed", "entrytbl_get_entry");
+    log_error("%s(): memory allocation failed", __func__);
     goto fail;
   }
 

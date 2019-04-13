@@ -157,7 +157,7 @@ alsaif_get_value(int card_num, int numid, long *value)
 
 fail:
   log_error("%s(): Can't find control element (card=%d,numid=%d)",
-            "alsaif_get_value", card_num, numid);
+            __func__, card_num, numid);
 
   return -1;
 }
@@ -195,7 +195,7 @@ alsaif_set_value(int card_num, int numid, long *value)
 
 fail:
   log_error("%s(): Can't find control element (card=%d,numid=%d)",
-            "alsaif_set_value", card_num, numid);
+            __func__, card_num, numid);
 
   return -1;
 }
@@ -236,7 +236,7 @@ alsaif_get_value_descriptor(int card_num,
 
 fail:
   log_error("%s(): Can't find control element (card=%d,numid=%d)",
-            "alsaif_get_value_descriptor", card_num, numid);
+            __func__, card_num, numid);
 
   return SND_CTL_ELEM_TYPE_NONE;
 }
@@ -497,7 +497,7 @@ control_event_cb(GIOChannel *source, GIOCondition condition, gpointer data)
   if (ret < 0)
   {
     log_error("%s(): failed to read events on card %d: %s",
-              "control_event_cb", card->num, snd_strerror(ret));
+              __func__, card->num, snd_strerror(ret));
 
     /* Event source should be removed */
     return FALSE;

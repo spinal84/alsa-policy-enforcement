@@ -83,8 +83,7 @@ control_define_card(const char *id, const char *name)
 
   if (!(card_def = malloc(sizeof(*card_def))))
   {
-    log_error("%s(): Can't allocate memory: %s", "control_define_card",
-              strerror(errno));
+    log_error("%s(): Can't allocate memory: %s", __func__, strerror(errno));
     return NULL;
   }
 
@@ -138,8 +137,7 @@ control_define_elem(struct card_def *card_def,
 
   if (!(elem_def = malloc(sizeof(*elem_def))))
   {
-    log_error("%s(): Can't allocate memory: %s", "control_define_elem",
-              strerror(errno));
+    log_error("%s(): Can't allocate memory: %s", __func__, strerror(errno));
     return NULL;
   }
 
@@ -185,8 +183,7 @@ control_define_entry(char *name)
 
   if (!(entry_def = malloc(sizeof(*entry_def))))
   {
-    log_error("%s(): Can't allocate memory: %s", "control_define_entry",
-              strerror(errno));
+    log_error("%s(): Can't allocate memory: %s", __func__, strerror(errno));
     return NULL;
   }
 
@@ -399,8 +396,7 @@ control_define_deflt(struct card_def *card_def,
   rule = rule_def_new();
   if (!rule)
   {
-    log_error("%s(): Can't allocate memory: %s", "control_define_deflt",
-              strerror(errno));
+    log_error("%s(): Can't allocate memory: %s", __func__, strerror(errno));
     return NULL;
   }
 
@@ -806,7 +802,7 @@ alsa_event_cb(alsaif_event *event)
         if (strcmp(event->card.id, card_def->id) ||
             strcmp(event->card.name, card_def->name))
         {
-          log_error("%s(): confused by adding multiple cards", "alsa_event_cb");
+          log_error("%s(): confused by adding multiple cards", __func__);
         }
         return;
       }
@@ -834,10 +830,10 @@ alsa_event_cb(alsaif_event *event)
       if (card_def)
         card_def_set_defaults(card_def);
       else
-        log_error(
-          "%s(): can't find card %d for incoming event",
-          "alsa_event_cb",
-          event->card.num);
+      {
+        log_error("%s(): can't find card %d for incoming event",
+                  __func__, event->card.num);
+      }
 
       return;
 
@@ -864,7 +860,7 @@ alsa_event_cb(alsaif_event *event)
             event->elem.dev != elem_def->dev ||
             event->elem.subdev != elem_def->subdev)
         {
-          log_error("%s(): confused by adding multiple elems", "alsa_event_cb");
+          log_error("%s(): confused by adding multiple elems", __func__);
         }
         return;
       }
@@ -893,8 +889,7 @@ alsa_event_cb(alsaif_event *event)
           else
           {
             log_error("Can't get value descriptor for hw:%d,%d",
-                      event->elem.card_num,
-                      event->elem.numid);
+                      event->elem.card_num, event->elem.numid);
           }
           return;
         }
@@ -903,7 +898,7 @@ alsa_event_cb(alsaif_event *event)
       return;
 
     default:
-      log_error("%s(): unknown event type %d received", "alsa_event_cb", event->type);
+      log_error("%s(): unknown event type %d received", __func__, event->type);
   }
 }
 

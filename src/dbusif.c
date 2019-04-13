@@ -570,7 +570,7 @@ action_parser(DBusMessageIter *actit, struct argdsc *descs, void *args, int len)
         if (desc->offs + sizeof(void *) > len)
         {
           log_error("D-Bus %s() desc offset %d is out of range %d",
-                    __FUNCTION__, desc->offs, len);
+                    __func__, desc->offs, len);
 
           return FALSE;
         }

@@ -15,8 +15,8 @@
 
 #include "alsaif.h"
 
-#define CARDS_COUNT 256
-#define CARDS_MASK  0xFF
+#define CARDS_COUNT 16
+#define CARDS_MASK  0xF
 
 #define ELEMS_COUNT 32
 #define ELEMS_MASK  0x1F
